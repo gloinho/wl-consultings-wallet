@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\WlConsultings.BankChallenge.Application\WlConsultings.BankChallenge.Application.csproj" />
     <ProjectReference Include="..\WlConsultings.BankChallenge.Domain\WlConsultings.BankChallenge.Domain.csproj" />
   </ItemGroup>
 
