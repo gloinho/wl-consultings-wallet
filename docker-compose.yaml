@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  migrations:
+      build:
+        context: .
+        dockerfile: ./src/WlConsultings.BankChallenge.WebApi/Dockerfile
+        target: build  # Usa o estágio de build que contém o SDK e o dotnet-ef
+      command: dotnet ef database update --startup-project /src/src/WlConsultings.BankChallenge.WebApi --project /src/src/WlConsultings.BankChallenge.Infra
+      depends_on:
+        postgres:
+          condition: service_healthy
+      environment:
+        - ASPNETCORE_ENVIRONMENT=Development
+        - ConnectionStrings__WL_CONN_STRING=Host=postgres;Database=BankChallengeDb;Username=postgres;Password=StrongPassword
+      networks:
+        - compose-bridge
+  bankchallenge.api:
+    build:
+      context: .
+      dockerfile: ./src/WlConsultings.BankChallenge.WebApi/Dockerfile
+    ports:
+      - "8080:8080"  
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__WL_CONN_STRING=Host=postgres;Database=BankChallengeDb;Username=postgres;Password=StrongPassword
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - compose-bridge
+
+  postgres:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=StrongPassword
+      - POSTGRES_DB=BankChallengeDb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]  # Verifica se o PostgreSQL está pronto
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - compose-bridge
+
+networks:
+  compose-bridge:
+    driver: bridge
+
+volumes:
+  postgres_data:
