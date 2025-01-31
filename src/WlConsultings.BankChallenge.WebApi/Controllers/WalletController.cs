@@ -102,5 +102,12 @@ namespace WlConsultings.BankChallenge.WebApi.Controllers
             var ret = await _service.CheckBalance(userId);
             return Ok(ret);
         }
+
+        [AuthorizeByGroup("grupo.g")]
+        [HttpGet("test")]
+        public IActionResult Test()
+        {
+            return Ok("Você tem acesso a este recurso!");
+        }
     }
 }
